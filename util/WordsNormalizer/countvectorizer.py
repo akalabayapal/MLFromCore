@@ -19,28 +19,38 @@ class CountVectorizer():
         '''
 
         vocab = []
+        vc = {}
 
         for i in X:
             objects = i.lower().split(sep)
 
             for obj in objects:
-                if not obj in vocab:
+                try:
+                    k = vc[obj]
+                except KeyError:
                     vocab.append(obj)
+                    vc[obj] = {}
+                    
         
         return vocab
 
 
-    def __transformer(self,vocabulary:list,s:str,sep=' '):
+    def __transformer(self,s:str,sep=' '):
 
-        transformed = []
+        transformed = [[]]
+        #transformed.extend([0]*self.__vocablen)
 
 
-        words = s.lower().split(sep)
+        words = s.lower().split(" ")
 
         words_count = Counter(words)
         
-        for obj in vocabulary:
+        for obj in words_count.keys():
+                #print(obj)
+                pos = self.__dictvocab[obj]
                 transformed.append(words_count.get(obj,0))
+                transformed[0].append(pos)
+
             
         return transformed
         
@@ -53,6 +63,12 @@ class CountVectorizer():
         vocabulary = self.__buildvocab(X,sep)
 
         self.__vocab = vocabulary #store the vocab so user can use it
+        self.__vocablen = len(vocabulary)
+        self.__dictvocab = {} #store the word and its position in list so that we directly put the value the position
+        for n,word in enumerate(vocabulary):
+            self.__dictvocab[word] = n
+
+
         self.is_fit = True
         self.__sep = sep
         
@@ -69,7 +85,7 @@ class CountVectorizer():
         X_transformed = []
 
         for i in X:
-            X_transformed.append(self.__transformer(self.__vocab,i,self.__sep))
+            X_transformed.append(self.__transformer(i,self.__sep))
 
         return X_transformed
 
