@@ -4,3 +4,5 @@ test_db/
 
 # Ignore Python cache
 __pycache__/
+util/WordsNormalizer/emails.csv
+util/WordsNormalizer/emails.csv
