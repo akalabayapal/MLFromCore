@@ -6,3 +6,4 @@ test_db/
 __pycache__/
 util/WordsNormalizer/emails.csv
 DELETED
+.gitignore

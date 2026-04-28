@@ -17,11 +17,22 @@ class TFIDFVectorizer():
         '''
         loop each of the sentence and split words and return the unique words
         '''
-        vocab = set()
-        for sentence in X:
-            words = sentence.split(sep)
-            vocab.update(words)
-        return list(vocab)
+
+        vocab = []
+        vc = {}
+
+        for i in X:
+            objects = i.lower().split(sep)
+
+            for obj in objects:
+                try:
+                    k = vc[obj]
+                except KeyError:
+                    vocab.append(obj)
+                    vc[obj] = {}
+                    
+        
+        return vocab
 
 
     def __transformer(self,vocabulary:list,s:str,sep=' '):
@@ -30,21 +41,30 @@ class TFIDFVectorizer():
             raise RuntimeError('Data transform requested before fitting the data.')
 
         transformed_temp = []
+#transformed_temp.append(word_count.get((obj),0)*self.__idfList[obj])
 
+        transformed_temp = [[]]
+        total = 0 #total value
 
-        words = s.split(sep)
-        word_count = Counter(words)
-        for obj in vocabulary:
-                transformed_temp.append(word_count.get((obj),0)*self.__idfList[obj])
+        words = s.lower().split(sep)
+
+        words_count = Counter(words)
+        
+        for obj in words_count.keys():
+                v = words_count.get(obj,0)*self.__idfList[obj]
+                transformed_temp[0].append(self.__dictvocab[obj])
+                transformed_temp.append(v)
+
+                total += v**2
             
-        total = math.sqrt(sum([i**2 for i in transformed_temp]))
+        total = total**(1/2)
 
         if total == 0:
             return [0.0]*len(vocabulary)
 
-        transformed = []
+        transformed = [transformed_temp[0]]
 
-        for n,i in enumerate(transformed_temp):
+        for n,i in enumerate(transformed_temp[1:]):
             transformed.append((i/total))
 
         
@@ -59,6 +79,11 @@ class TFIDFVectorizer():
         vocabulary = self.__buildvocab(X,sep)
 
         self.__vocab = vocabulary #store the vocab so user can use it
+        self.__vocablen = len(vocabulary)
+        self.__dictvocab = {} #store the word and its position in list so that we directly put the value the position
+        
+        for n,word in enumerate(vocabulary):
+            self.__dictvocab[word] = n
 
         self.__idfList = self.__makeidf(X,sep) #get the idflist
         self.is_fit = True
@@ -113,3 +138,25 @@ class TFIDFVectorizer():
     def fit_transform(self,X:list,sep=' '):
         self.fit(X=X,sep=sep)
         return self.transform(X)
+    
+    def deCompress(self,X_compressed:list):
+        '''
+        Decompress the compressed TF-IDF vector to normal long form
+        '''
+        #make sure the data is fit already...
+        if not self.is_fit:
+            raise RuntimeError('Decompression failed as no data has been fit.')
+        #check the structure first...
+        if len(X_compressed) == 0:
+            raise IndexError('The compressed stucture must have atleast length of 1.')
+        if not (type(X_compressed)==list and type(X_compressed[0])==list):
+            raise TypeError('The given compressed structure does not match with the vectorizer supported stucture.')
+        
+        decompressed = [0.0]*self.__vocablen #make the mainframe of the decompressed strucure
+        for n,i in enumerate(X_compressed[0]):
+            decompressed[i] = X_compressed[1+n]
+
+        return decompressed
+            
+
+
