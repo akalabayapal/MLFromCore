@@ -7,32 +7,12 @@ TF-IDF vectorizer
 
 import math
 from collections import Counter
+from util.vocabgen import *
 
 class TFIDFVectorizer():
     def __init__(self):
         self.is_fit = False
 
-
-    def __buildvocab(self,X:list,sep=' '):
-        '''
-        loop each of the sentence and split words and return the unique words
-        '''
-
-        vocab = []
-        vc = {}
-
-        for i in X:
-            objects = i.lower().split(sep)
-
-            for obj in objects:
-                try:
-                    k = vc[obj]
-                except KeyError:
-                    vocab.append(obj)
-                    vc[obj] = {}
-                    
-        
-        return vocab
 
 
     def __transformer(self,vocabulary:list,s:str,sep=' '):
@@ -76,26 +56,25 @@ class TFIDFVectorizer():
         2.Now loop each object count the occurance
         3.store it
         '''
-        vocabulary = self.__buildvocab(X,sep)
-
-        self.__vocab = vocabulary #store the vocab so user can use it
-        self.__vocablen = len(vocabulary)
-        self.__dictvocab = {} #store the word and its position in list so that we directly put the value the position
+        vocabulary = self.vocabObj.fit(X,sep)
         
-        for n,word in enumerate(vocabulary):
-            self.__dictvocab[word] = n
+        self.__vocab = self.vocabObj.__vocab #store the vocab so user can use it
+        self.__vocablen = self.vocabObj.__vocablen
+        self.__dictvocab = self.vocabObj.__dictvocab
 
-        self.__idfList = self.__makeidf(X,sep) #get the idflist
+        self.__idfList = self.__makeidf(X,sep=sep)
+        
         self.is_fit = True
-
         self.__sep = sep
-        
-    def getVocab(self):
-        return self.__vocab
     
     def getIDF(self):
         return self.__idfList
     
+    def getVocab(self):
+        return self.__vocab
+    
+    def isfit(self):
+        return self.is_fit
 
     def __makeidf(self,X,sep):
 

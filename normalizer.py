@@ -26,6 +26,11 @@ class Normalizer():
                 X[i][j] = (float(X[i][j]) - mean) / (std + 1e-8)
         
         Y = [float(y) for y in Y]
+        y_mean = sum(Y)/len(Y)
+        y_std = (sum((y-y_mean)**2 for y in Y)/len(Y))**0.5
+        self.Normalizer_column_Y.append((y_mean,y_std))
+        Y = [(y - y_mean)/(y_std + 1e-8) for y in Y]
+
         
 
         return X,Y
@@ -41,3 +46,14 @@ class Normalizer():
             new_X.append((float(xi)-X_d[n][0])/(X_d[n][1]+1e-8))
         
         return new_X
+    
+    def __detransform(self,Y):
+        '''
+        Transform the X values using the saved transformer data...
+        '''
+        Y_mean = self.Normalizer_column_Y[0][0]
+        Y_std = self.Normalizer_column_Y[0][1]
+
+        new_Y  = Y*(Y_std+1e-8) + Y_mean
+        
+        return new_Y
