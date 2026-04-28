@@ -74,12 +74,41 @@ The long-term goal is to evolve this into a lightweight, educational ML framewor
 
 ## 📌 Status
 
-Actively evolving — early-stage framework development.
+🟢 Actively evolving — early-stage framework development.
+
+---
+
+## 📈 Change Logs
+
+* Abstracted the normalization from models, reducing the redundancy of code and support for user defined normalization
+
+* UTILS folder added:
+
+    * `vocabgen.py`: can be used to convert any sequecial data to vocabulary.Optimized heavily for handling large data.
+    * WordsNormalizer
+
+        * `countvectorizer.py`: converting raw list of words to BOW(Bag of words).
+
+        * `tfidfvectorizer.py`: conveting raw list of words to TF-IDF(term frequency-inverse document frequency)
+
+* Major bug fix in Normalization:The normalization did not store std_deviation and mean for Y leading to anomaly during detransformation or causing unexpected errors.
+
+---
+
+## ⚡Recent Plans
+
+* Complete Implementation of NB(Naive Bayes)
+
+* Add support to all kinds of sequence(not only words) in BOW/TFIDF making more general.
+
+* Add kernels over the Naive bayes for scoring purposes.
 
 ---
 
 ## ⚠️ Note
 
-This project is not optimized for production use. It is intended purely for learning, experimentation, and foundational understanding.
+1.This project is not optimized for production use. It is intended purely for learning, experimentation, and foundational understanding.
+
+2.This project is under heavy development right now APIS are subjected to change follow `Change Logs` or `commit history` for active information.
 
 ---
