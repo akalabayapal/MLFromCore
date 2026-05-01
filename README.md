@@ -83,13 +83,13 @@ The long-term goal is to evolve this into a lightweight, educational ML framewor
 
 ## 📈 Change Logs
 
+* `NaiveBayes.py`: Implementation completed properly
+
+    * Streaming prediction added to all models.Rather than at once prediction one can take output on demand 
+    
 * Abstracted the normalization from models, reducing the redundancy of code and support for user defined normalization
 
 * UTILS folder added:
-
-    * `NaiveBayes.py`: Implementation completed properly
-
-    * Streaming prediction added to all models.Rather than at once prediction one can take output on demand 
 
     * `vocabgen.py`: can be used to convert any sequecial data to vocabulary.Optimized heavily for handling large data.
     * WordsNormalizer
