@@ -185,7 +185,7 @@ class LinearRegression():
         self.W = W #Keep the weights
         self.loss = loss_last #store the final loss
         
-    def predict(self,X:list):
+    def __predict(self,X:list):
         '''
         pass new data to trained weights.
         normalize x --> use weights to get normalized Y --> denormalize Y
@@ -200,16 +200,20 @@ class LinearRegression():
 
         return self.__detransform(Y_pred)
 
-    def predictList(self,X:list):
+    def predict(self,X:list,stream=False):
         '''
         pass each data to predict() and get data and append it to list and resturn
         '''
         predListOutput = [] #store the output of the predictions
         for dataPoint in X:
-            predListOutput.append(self.predict(dataPoint))
+            pred = self.__predict(dataPoint) 
+            predListOutput.append(pred)
 
         return predListOutput
-        
+    
+    def predict_stream(self, X):
+        for x in X:
+            yield self.__predict(x)
 
 
 

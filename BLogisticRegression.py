@@ -148,7 +148,7 @@ class LogisticRegression():
         self.W = W #Keep the weights
         self.loss_final = loss_last
 
-    def predict(self,X:list):
+    def __predict(self,X:list):
         '''
         pass new data to trained weights.
         normalize x --> use weights to get normalized Y --> denormalize Y
@@ -168,7 +168,7 @@ class LogisticRegression():
         
         return sigmoid(Y_pred)
     
-    def predictList(self,X:list):
+    def predict(self,X:list):
         '''
         1.for each X send to predict().
         2.append to list
@@ -176,9 +176,14 @@ class LogisticRegression():
         '''
         resultList = []
         for x in X:
-            resultList.append(self.predict(x))
-
+            pred = self.__predict(x)
+            resultList.append(pred)
+        
         return resultList
+    
+    def predict_stream(self, X):
+        for x in X:
+            yield self.__predict(x)
 
     
 

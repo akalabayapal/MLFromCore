@@ -322,12 +322,30 @@ class Knn():
 
         return probs
 
-    def predict(self,X:list,distanceMetric=None,kernel=Kernel.uniform()):
+    def __predict(self,X:list,distanceMetric=None,kernel=Kernel.uniform()):
         if self.traintype == 'regression':
             self.__predictR(X,distanceMetric,kernel)
         elif self.traintype == 'classification':
             self.__predictC(X,distanceMetric,kernel)
 
+
+    def predict(self,X:list):
+        '''
+        1.for each X send to predict().
+        2.append to list
+        3.return the total list
+        '''
+        resultList = []
+        for x in X:
+            pred = self.__predict(x)
+            resultList.append(pred)
+    
+        return resultList
+    
+    def predict_stream(self, X):
+        for x in X:
+            yield self.__predict(x)
+        
     def fit(self,X:list,Y:list,K:int,traintype='regression'):
         '''
         Normalize and store the data

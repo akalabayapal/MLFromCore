@@ -28,7 +28,9 @@ class CountVectorizer():
         
         for obj in words_count.keys():
                 #print(obj)
-                pos = self.__dictvocab[obj]
+                pos = self.__dictvocab.get(obj)
+                if pos == None:
+                    continue
                 if isBinary:
                     transformed.append(1)
                 else:
@@ -46,9 +48,7 @@ class CountVectorizer():
         '''
         vocabulary = self.vocabObj.fit(X,sep)
 
-        self.__vocab = self.vocabObj.__vocab #store the vocab so user can use it
-        self.__vocablen = self.vocabObj.__vocablen
-        self.__dictvocab = self.vocabObj.__dictvocab
+        self.__vocablen,self.__vocab,self.__dictvocab = self.vocabObj.getVocabParams() #store the vocab so user can use it
 
         self.is_fit = True
         self.__sep = sep
@@ -58,6 +58,9 @@ class CountVectorizer():
     
     def isfit(self):
         return self.is_fit
+    
+    def getVobabularyObj(self):
+        return self.vocabObj
     
     def transform(self,X:list):
         '''

@@ -22,7 +22,7 @@ The goal is to deeply understand how machine learning algorithms work internally
 * [x] Linear Regression
     * [ ] Regularization(L1 and L2)
 * [x] Logistic Regression
-* [ ] Naive Bayes
+* [X] Naive Bayes
     * [X] Word Vectorizers(BOW and TF-IDF)
 * [ ] Decision Tree
 * [ ] Random Forest
@@ -87,6 +87,10 @@ The long-term goal is to evolve this into a lightweight, educational ML framewor
 
 * UTILS folder added:
 
+    * `NaiveBayes.py`: Implementation completed properly
+
+    * Streaming prediction added to all models.Rather than at once prediction one can take output on demand 
+
     * `vocabgen.py`: can be used to convert any sequecial data to vocabulary.Optimized heavily for handling large data.
     * WordsNormalizer
 
@@ -100,11 +104,9 @@ The long-term goal is to evolve this into a lightweight, educational ML framewor
 
 ## ⚡Recent Plans
 
-* Complete Implementation of NB(Naive Bayes)
+* Start progress in Tree based models
 
 * Add support to all kinds of sequence(not only words) in BOW/TFIDF making more general.
-
-* Add kernels over the Naive bayes for scoring purposes.
 
 ---
 

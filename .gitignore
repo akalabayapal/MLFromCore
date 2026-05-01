@@ -3,7 +3,7 @@ TEST/
 test_db/
 
 # Ignore Python cache
-__pycache__/
-util/WordsNormalizer/emails.csv
+**/__pycache__/
+*.py[cod]
 DELETED
 .gitignore

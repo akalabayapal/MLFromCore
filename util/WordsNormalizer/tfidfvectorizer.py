@@ -12,8 +12,7 @@ from util.vocabgen import *
 class TFIDFVectorizer():
     def __init__(self):
         self.is_fit = False
-
-
+        self.vocabObj = Vocabgen()
 
     def __transformer(self,vocabulary:list,s:str,sep=' '):
         
@@ -31,8 +30,13 @@ class TFIDFVectorizer():
         words_count = Counter(words)
         
         for obj in words_count.keys():
+                pos = pos = self.__dictvocab.get(obj)
+                if pos == None:
+                    continue
+                
                 v = words_count.get(obj,0)*self.__idfList[obj]
-                transformed_temp[0].append(self.__dictvocab[obj])
+
+                transformed_temp[0].append(pos)
                 transformed_temp.append(v)
 
                 total += v**2
@@ -58,9 +62,8 @@ class TFIDFVectorizer():
         '''
         vocabulary = self.vocabObj.fit(X,sep)
         
-        self.__vocab = self.vocabObj.__vocab #store the vocab so user can use it
-        self.__vocablen = self.vocabObj.__vocablen
-        self.__dictvocab = self.vocabObj.__dictvocab
+        self.__vocablen,self.__vocab,self.__dictvocab = self.vocabObj.getVocabParams() #store the vocab so user can use it
+
 
         self.__idfList = self.__makeidf(X,sep=sep)
         
@@ -69,6 +72,9 @@ class TFIDFVectorizer():
     
     def getIDF(self):
         return self.__idfList
+    
+    def getVobabularyObj(self):
+        return self.vocabObj
     
     def getVocab(self):
         return self.__vocab

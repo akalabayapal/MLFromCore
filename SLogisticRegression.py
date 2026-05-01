@@ -14,10 +14,11 @@ use the weightlist of the correct class and update weights
 import math
 import random 
 from normalizer import Normalizer
-def softmax(Zlist):
+
+def softmax(Zlist:dict):
     '''
     1.Get the scores for all classes.
-    2.Return the correct class score
+    2.Return the all class score
     '''
 
     s = 0
@@ -95,7 +96,7 @@ class SLogisticRegression():
     
 
     def __getuniqueclass(self,Y) -> list:
-        return list(set(Y))
+        return set(Y)
     
     def __makeWeights(self,n):
         W = []
@@ -163,5 +164,41 @@ class SLogisticRegression():
             X[i].append(1)
 
         epoch(X,Y,WList,learning_rate)
+
+        self.WList = WList
+
+    def __predict(self,X):
+        '''
+        1. Take the X and add 1 as bias
+        2. Apply over all Wlist and get the value for each
+        3. Apply softmax over the values
+        4.Return the dict of {class:prediction score}
+        '''
+
+        X = self.__transform(X) #transform the X for model
+
+        zList = {}
+        for i in self.WList:
+            W = self.WList[i]
+            z = sum(W[j]*float(X[j]) for j in range(len(W)))
+            zList[i] = z
+
+
+        scores = softmax(zList)
+
+        return scores
+    
+    def predict(self,X:list):
+        scores = []
+        for x in X:
+            score = self.__predict(x)
+            scores.append(score)
         
+       
+        return scores
+    
+    def predict_stream(self, X):
+        for x in X:
+            yield self.__predict(x)
+
 

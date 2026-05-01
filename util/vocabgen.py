@@ -49,3 +49,8 @@ class Vocabgen():
 
         self.is_fit = True
         self.__sep = sep
+    
+    def getVocabParams(self):
+        #returns dictvocab,vocablen
+
+        return self.__vocablen,self.__vocab,self.__dictvocab
