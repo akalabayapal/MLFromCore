@@ -85,8 +85,8 @@ The long-term goal is to evolve this into a lightweight, educational ML framewor
 
 * `NaiveBayes.py`: Implementation completed properly
 
-    * Streaming prediction added to all models.Rather than at once prediction one can take output on demand 
-    
+* Streaming prediction added to all models.Rather than at once prediction one can take output on demand 
+
 * Abstracted the normalization from models, reducing the redundancy of code and support for user defined normalization
 
 * UTILS folder added:
