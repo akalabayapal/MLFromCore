@@ -20,12 +20,12 @@ The goal is to deeply understand how machine learning algorithms work internally
 * [x] K-Nearest Neighbors (KNN)
     * [ ] Approximative methods
 * [x] Linear Regression
-    * [ ] Regularization(L1 and L2)
+    * [X] Regularization(L1 and L2)
 * [x] Logistic Regression
 * [X] Naive Bayes
     * [X] Word Vectorizers(BOW and TF-IDF)
 * [X] Decision Tree
-* [ ] Random Forest
+* [X] Random Forest
 * [ ] Support Vector Machine (SVM)
 * [ ] Neural Networks
 
