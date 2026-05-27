@@ -16,8 +16,9 @@ Goals and implementations for future
 """
 import random
 import math
-from normalizer import Normalizer
-def epoch(X,Y,W,lr,loss_update):
+from util.normalizer import Normalizer
+
+def epoch(X,Y,W,lr,loss_update,regularisation=None):
     '''
     1.Traverse via each X lists
     2.Use the W to get Y predicted
@@ -25,13 +26,16 @@ def epoch(X,Y,W,lr,loss_update):
     4.Update each weight by W(n) = W(n) - error*(learning rate)*x(n)
 
     '''
+    if regularisation == None:
+        regularisation = lambda x:0
+        
     for n, x in enumerate(X):
         y_p = sum(W[i]*float(x[i]) for i in range(len(W)))
         err = y_p - float(Y[n])
         
 
         for i in range(len(W)):
-            W[i] -= loss_update(err,lr,x[i])
+            W[i] -= loss_update(err,lr,x[i]) - regularisation(W[i])
 
 
 class Updater():
@@ -78,6 +82,8 @@ class Updater():
 class LinearRegression():
     def __init__(self):
         self.normalizer = Normalizer()
+        self.__type = '1'
+
     def __normalizer(self,X:list,Y:list,mode=0):
         # '''
         # Methodology:
@@ -110,7 +116,7 @@ class LinearRegression():
 
         # return X,Y
 
-        return self.normalizer.__normalizer(X=X,Y=Y)
+        return self.normalizer.normalizer(X=X,Y=Y)
     
     def __transform(self,X):
         # '''
@@ -124,7 +130,7 @@ class LinearRegression():
         #     new_X.append((float(xi)-X_d[n][0])/(X_d[n][1]+1e-8))
         
         # return new_X
-        return self.normalizer.__transform(X)
+        return self.normalizer.transform(X)
     
     def __detransform(self,Y):
         # '''
@@ -136,21 +142,23 @@ class LinearRegression():
         # new_Y  = Y*(Y_std+1e-8) + Y_mean
         
         # return new_Y
-        self.normalizer.__detransform(Y)
+        self.normalizer.detransform(Y)
 
 
     def fit(self,X:list,Y:list,learning_rate:int=0.0001,max_epoch_lim:int=1000,
-              threshold_stop:int=0.001,update_instance=None):
+              threshold_stop:int=0.001,update_instance=None,regularisation=None):
         '''
         1.Noramlize data
         2.Control epoch
         3.Send the data to Epoch function
         '''
+        self.LossHistory = []
+
         if update_instance is None:
             update_instance = Updater()
             
         #Get loss function and weight updater
-        update_function,loss_function = update_instance.get()
+        self.update_function,self.loss_function = update_instance.get()
 
         #get loss function from update instance
         X_len = len(X[0])
@@ -172,9 +180,12 @@ class LinearRegression():
         loss_last = 0
         for x in range(max_epoch_lim):
             #call the epoch function
-            epoch(X,Y,W,learning_rate,update_function)
+            epoch(X,Y,W,learning_rate,self.update_function,regularisation=regularisation)
             #update the loss value
-            l = loss_function(X,Y,W)
+            l = self.loss_function(X,Y,W)
+
+            self.LossHistory.append(l)
+    
             delt_l = loss_last-float(l)
             loss_last = l
 
@@ -184,7 +195,19 @@ class LinearRegression():
 
         self.W = W #Keep the weights
         self.loss = loss_last #store the final loss
+
+        self.IsFit = True
+
+
+    def isFit(self):
+        return self.IsFit
+    
+    def LossHistory(self):
+        if not self.IsFit:
+            raise RuntimeError('Model must be first Trained for Prediction...')
         
+        return self.LossHistory
+
     def __predict(self,X:list):
         '''
         pass new data to trained weights.
@@ -200,10 +223,15 @@ class LinearRegression():
 
         return self.__detransform(Y_pred)
 
-    def predict(self,X:list,stream=False):
+    def predict(self,X:list):
         '''
         pass each data to predict() and get data and append it to list and resturn
         '''
+
+        if not self.IsFit:
+            raise RuntimeError('Model must be first Trained for Prediction...')
+        
+
         predListOutput = [] #store the output of the predictions
         for dataPoint in X:
             pred = self.__predict(dataPoint) 
@@ -212,6 +240,10 @@ class LinearRegression():
         return predListOutput
     
     def predict_stream(self, X):
+        
+        if not self.IsFit:
+            raise RuntimeError('Model must be first Trained for Prediction...')
+        
         for x in X:
             yield self.__predict(x)
 

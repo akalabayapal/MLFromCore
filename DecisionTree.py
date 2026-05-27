@@ -1,52 +1,19 @@
+import csv
+import random
 
-
-'''
-for each feature get all the data of that feature ans sort it in ascending order
-find midpoints
-split the data per midpoint store them
-for each midpoint find the spit 
-calculate gini
-find best split
-return it
-'''
-
-'''
-Tree implementation of the decision tree
-
-        TREE
-          |(condition)
------------------------
-|                      |
-Left                   Right
-
-1.if the deadend is achived store leaf bool for it
-2. For traversal...
-    -Get data
-    -Start of with top node pass the data 1
-    - node 1 matches the req field and value and passes it to next node
-    - if the node is leaf,final weighted class composition is returned
-
-'''
-#Auto unpacking node system..
-'''
-Once Node is made just call action..node is auto unpacked to verdict...
-'''
 class Node:
-    def __init__(self,isLeaf:bool,value:int=None,field:int=None):
+    def __init__(self, isLeaf: bool, value: int = None, field: int = None):
         self.isLeaf = isLeaf
         self.field = field
         self.value = value
         self.left = None
         self.right = None
 
-
-    
-    def setLeftRight(self,left,right):
+    def setLeftRight(self, left, right):
         self.left = left
-        self.right=right
+        self.right = right
     
-    
-    def action(self,data):
+    def action(self, data):
         if self.isLeaf:
             return self.LeafScore
         
@@ -55,23 +22,25 @@ class Node:
         else:
             return self.right.action(data)
     
-    def SetLeafScore(self,scorearr:list):
+    def SetLeafScore(self, scorearr: list):
         if self.isLeaf == False:
             raise RuntimeError('Can not assign LeafScore to non leaf node...')
-        
-        self.LeafScore:list = scorearr #set the probability of each class in a list/array
-
-
-
-
-
+        self.LeafScore: list = scorearr
 
 
 class DecisionTree:
     def __init__(self):
-        pass
+        self.STOP_SIG = 'STOP'
+        self.RUN_SIG = 'RUN'
 
-    def shortviafeature(self,data,featureno,y):
+    def shortviafeature(self, data, index_linker, type_scan, pivot, featureno, y, init_u=None, end_u=None):
+        # Establish exact scanning limits for this specific branch window
+        if type_scan == 'left' or type_scan == 'left_unchecked':
+            init = init_u
+            end = pivot
+        elif type_scan == 'right':
+            init = pivot
+            end = end_u
 
         temp_data = {}
         featureListValue = []
@@ -80,17 +49,16 @@ class DecisionTree:
         shortedExpanded = []
         midPoints = []
         Y_linker = []
+        Index_linker = []  
 
-        Index_linker = []  # <--- 1. ADD THIS TO TRACK ORIGINAL ROW INDICES
-
-        for n,d in enumerate(data):
+        for n in range(init, end):
+            d = data[index_linker[n]]
             featureValue = d[featureno]
 
             if featureValue in temp_data:
-                temp_data[featureValue].append(n)
-
+                temp_data[featureValue].append(index_linker[n])
             else:
-                temp_data[featureValue] = [n]
+                temp_data[featureValue] = [index_linker[n]]
                 featureListValue.append(featureValue)
 
         isFirst = True
@@ -102,7 +70,7 @@ class DecisionTree:
                 value = data[j][featureno]
                 Y_linker.append(y[j])
                 shortedExpanded.append(value)
-                Index_linker.append(j)  # <--- 2. STORE THE EXACT ROW INDEX HERE
+                Index_linker.append(j)  
                 try:
                     shortedDict[value]
                 except:
@@ -120,196 +88,222 @@ class DecisionTree:
         del shorted
         del shortedDict
         del featureListValue
-
-        return midPoints,shortedExpanded,Y_linker,temp_data,Index_linker # <--- 3. RETURN IT AS WELL
-    
-    def ginicalc(self,data_y,left_size,right_size,y_u):
-
-        total_size = left_size+right_size
-        category_index = {}
-
-        for n,category in enumerate(y_u):
-            category_index[category] = n
-
-        Y_u_len = len(y_u)
-
-        counterLeft=[0]*Y_u_len
-        counterRight = [0]*Y_u_len
-
-        for n,i in enumerate(data_y):
-            if n<=(left_size-1):
-                counterLeft[category_index[i]] += 1
-            else:
-                counterRight[category_index[i]] += 1
-
-        PLeft = 0
-        for i in counterLeft:
-            PLeft += ((i/left_size))**2
-        giniLeft = (left_size/total_size)*(1-PLeft)
-
-
-        Pright = 0
-        for i in counterRight:
-            Pright += ((i/right_size))**2
-
-        giniRight = (right_size/total_size)*(1-Pright)
-
-
-        return giniLeft+giniRight
+        
+        return midPoints, shortedExpanded, Y_linker, temp_data, Index_linker
     
 
-    def splitfinder(self,featureno,storeddata,Y_u):
+    def splitfinder(self, featureno, storeddata, Y_u):
         best_gini = 2
         split_best = None
 
-        # <--- 1. EXTRACT index_linker FROM storeddata
-        points,x_values,y_values,linker,index_linker = storeddata[featureno] 
+        points, x_values, y_values, linker, index_linker = storeddata[featureno] 
         left = []
-        right:list = y_values
+        right: list = y_values
         right_index = 0
+        total_size = len(y_values)
 
         left_x = []
-        right_x:list = x_values
+        right_x: list = x_values
 
         size_right = len(y_values)
         size_left = 0
 
+        signal = self.RUN_SIG
+        if len(points) == 0:
+            signal = self.STOP_SIG
+
+        len_Yu = len(Y_u)
+        counterLeft = [0]*len_Yu
+        counterRight = [0]*len_Yu
+        category_index = {category: n for n, category in enumerate(Y_u)}
+
+        for y in y_values:
+            idx = category_index[y]
+            counterRight[idx] += 1
+
         for point in points:
-            for i in range(right_index,size_right):
+            for i in range(right_index, size_right):
                 if i > size_right - 1:
                     break
                 if right_x[i] < point:
                     left.append(right[right_index])
                     left_x.append(right_x[right_index])
-                    right_index+=1
+
+                    categoryIndex = category_index[y_values[right_index]]
+                    counterRight[categoryIndex] -= 1
+                    counterLeft[categoryIndex] += 1
+
+                    right_index += 1
                     size_left += 1
+                    size_right -= 1
                 else: 
                     break
 
-            gini = self.ginicalc(y_values,size_left,size_right-size_left,Y_u)
+            if size_left == 0 or size_right == 0:
+                continue
+
+            PLeft = sum((count / size_left) ** 2 for count in counterLeft)
+            giniLeft = (size_left / total_size) * (1 - PLeft)
+    
+            PRight = sum((count / size_right) ** 2 for count in counterRight)
+            giniRight = (size_right / total_size) * (1 - PRight)
+    
+            gini = giniLeft + giniRight
+
+            if size_right <= self.minsamples:
+                signal = self.STOP_SIG
 
             if gini < best_gini or gini == 0:
                 best_gini = gini
-                # <--- 2. ADD index_linker TO THE split_best TUPLE
-                split_best = (point,x_values,size_left,y_values,best_gini,index_linker) 
+                # Keep tracking size_left to locate the relative boundary shift
+                split_best = (point, x_values, size_left, y_values, best_gini, index_linker) 
 
-        return split_best
+        return split_best, signal
 
-                
-            
-    def uniqueY(self,y):
+    def uniqueY(self, y):
         return set(y)
 
-    def RecursiveBuilder(self,x,y,prevNode:Node=None,depth=0,max_depth=100,Y_u:list=[]):
-        depth  = depth+1
-        dataStorage = []
+    def fit(self, X, Y, max_depth=100, min_samples=10):
+        self.features_unique = len(X[0])
+        self.minsamples = min_samples
+        self.uY = self.uniqueY(Y)
+        self.UYlen = len(self.uY)
+        
+        # Instantiate a proper mutable tracking index array
+        global_indices = list(range(len(X)))
+        
+        self.builder = self.RecursiveBuilder(
+            x=X,
+            y=Y,
+            index_linker=global_indices,
+            pivot=len(X),               
+            type_scan='left_unchecked',  
+            init_u=0,            
+            end_u=len(X),               
+            max_depth=max_depth,
+            Y_u=self.uY
+        )
+
+    def RecursiveBuilder(self, x, y, index_linker, pivot, type_scan, init_u, end_u, depth=0, max_depth=100, Y_u:list=[]):
+        # Base Case: Stop recursion if boundaries collapse
+        if init_u is None or end_u is None or init_u >= end_u:
+            node = Node(True)
+            fallback_idx = init_u if (init_u is not None and init_u < len(index_linker)) else 0
+            node.SetLeafScore([y[index_linker[fallback_idx]]])
+            return node
+
+        depth = depth + 1
+        dataStorage = {}
+        
         if depth == max_depth:
             node = Node(True)
-            node.SetLeafScore(y)
-            return node 
+            branch_y = [y[idx] for idx in index_linker[init_u:end_u]]
+            node.SetLeafScore(branch_y)
+            return node
 
-        for f in range(self.UYlen):
-            dataStorage.append(self.shortviafeature(x,f,y))
+        # Gather sorted features inside local node limits
+        for f in range(self.features_unique):
+            dataStorage[f] = self.shortviafeature(x, index_linker, type_scan, pivot, f, y, init_u, end_u)
+
+        if type_scan == 'left_unchecked':
+            type_scan = 'left'
 
         bestsplitginni = 2
-        bestSplit= ()
+        bestSplit = ()
         bestfeature = 0
 
-        for j in range(self.UYlen):
-            splitdata = self.splitfinder(j,dataStorage,Y_u)
-            # <--- 1. UPDATE INDEX TO -2 BECAUSE bestSplit NOW HAS 6 ELEMENTS
+        for j in range(self.features_unique):
+            splitdata, signal = self.splitfinder(j, dataStorage, Y_u)
             if splitdata and splitdata[-2] < bestsplitginni: 
                 bestsplitginni = splitdata[-2]
-                bestSplit=splitdata
+                bestSplit = splitdata
                 bestfeature = j
 
         if bestSplit == ():
-            #end tree here
             node = Node(True)
-            node.SetLeafScore(y)
+            branch_y = [y[idx] for idx in index_linker[init_u:end_u]]
+            node.SetLeafScore(branch_y)
             return node 
 
-        pivot = bestSplit[2]
-        index_linker = bestSplit[5]  # <--- 2. GET THE INDEX LINKER
+        # --- THE MATHEMATICAL CORRECTION ---
+        # The true index pivot location inside the global array must be 
+        # relative to where our starting window boundary (init_u) is positioned!
+        size_left = bestSplit[2]
+        new_pivot = init_u + size_left       
+        
+        # Write back the sorted mutation indices into our shared array tracker
+        mutated_branch_indices = bestSplit[5]
+        index_linker[init_u:end_u] = mutated_branch_indices
 
-        # <--- 3. SLICE INDICES DIRECTLY AND GENERATE THE NEW SUBSETS CLEANLY
-        indices_left = index_linker[:pivot]
-        indices_right = index_linker[pivot:]
+        if signal == self.STOP_SIG:
+            node = Node(True)
+            branch_y = [y[idx] for idx in index_linker[init_u:end_u]]
+            node.SetLeafScore(branch_y)
+            return node 
 
-        x_left = [x[j] for j in indices_left]
-        y_left = [y[j] for j in indices_left]
-        x_right = [x[j] for j in indices_right]
-        y_right = [y[j] for j in indices_right]
+        current_start = init_u
+        current_end = end_u
 
-        # ... Rest of your node creation logic remains the same ...
-        # 1. Instantiate the local non-leaf node for the current split
         node = Node(False, bestSplit[0], bestfeature)
 
-        # 2. Build sub-trees normally without tracking parents 
-        # (Each recursive call returns its own newly generated branch/leaf)
-        left_child = self.RecursiveBuilder(x_left, y_left, depth=depth, max_depth=max_depth,Y_u=Y_u)
-        right_child = self.RecursiveBuilder(x_right, y_right, depth=depth, max_depth=max_depth,Y_u=Y_u)
+        left_child = self.RecursiveBuilder(
+            x, y, 
+            index_linker=index_linker, 
+            pivot=new_pivot, 
+            type_scan='left', 
+            init_u=current_start, 
+            end_u=new_pivot,  
+            depth=depth, 
+            max_depth=max_depth, 
+            Y_u=Y_u
+        )
+        
+        right_child = self.RecursiveBuilder(
+            x, y, 
+            index_linker=index_linker, 
+            pivot=new_pivot, 
+            type_scan='right', 
+            init_u=new_pivot, 
+            end_u=current_end, 
+            depth=depth, 
+            max_depth=max_depth, 
+            Y_u=Y_u
+        )
 
-        # 3. Attach the children directly to this node
         node.setLeftRight(left_child, right_child)
-
-        # 4. Return THIS node so its parent node can link to it seamlessly
         return node
 
-
-    def fit(self,X,Y,max_depth=100):
-        self.uY = self.uniqueY(Y)
-        self.UYlen = len(self.uY)
-        self.builder = self.RecursiveBuilder(X,Y,max_depth=max_depth,Y_u=self.uY)
-
-    def __predict(self,kernel,X):
+    def __predict(self, kernel, X):
         output = self.builder.action(X)
-
-        return kernel(self.uY,output)
+        return kernel(self.uY, output)
     
-    def predict(self,kernel,X:list):
+    def predict(self, kernel, X: list):
         output = []
         for data in X:
-            output.append(self.__predict(kernel=kernel,X=data))
-
+            output.append(self.__predict(kernel=kernel, X=data))
         return output
-    
-    def predict_stream(self,kernel,X:list):
-        for data in X:
-            yield self.__predict(kernel,data)
 
-
-
-class Kernels():
-
+class Kernels:
     @staticmethod
-    def Voting(Yu:list,output:list):
-
+    def Voting(Yu: list, output: list):
         counter = [0]*len(Yu)
-        for n,k in enumerate(Yu):
+        for n, k in enumerate(Yu):
             counter[n] = output.count(k)
-        
-        return counter
+        return dict(zip(Yu, counter))
     
     @staticmethod
-    def normalizedvoting(Yu:list,output:list):
-        length = len(output)
+    def StrictClass(Yu: list, output: list):
+        list_Yu = list(Yu)
         counter = [0]*len(Yu)
-        for n,k in enumerate(Yu):
-            counter[n] = output.count(k)/length
-        
-        return counter
-    
-    @staticmethod
-    def regression(Yu:list,output:list):
-        length = len(output)
-        counter = [0]*len(Yu)
-        for n,k in enumerate(Yu):
-            counter[n] = (output.count(k)/length)*k
-        
-        return sum(counter)
+        for n, k in enumerate(Yu):
+            counter[n] = output.count(k)
 
-
-
+        maxiclass = None
+        maxi = -1
+        for j in range(len(Yu)):
+            if maxi < counter[j]:
+                maxi = counter[j]
+                maxiclass = list_Yu[j]
+        return maxiclass
 
 

@@ -26,14 +26,15 @@ After simplificaton the updating formula comes out to be: m(n)' = m(n) - (learni
 """
 import random 
 import math
-from normalizer import Normalizer
+from util.normalizer import Normalizer
 
 def sigmoid(z):
     if z >= 0:
         return 1 / (1 + math.exp(-z))
     else:
         return math.exp(z) / (1 + math.exp(z))
-def epoch(X,Y,W,lr):
+    
+def epoch(X,Y,W,lr,regularisation=None):
     '''
     1.Traverse via each X lists
     2.Use the W to get Y predicted
@@ -41,6 +42,9 @@ def epoch(X,Y,W,lr):
     4.Update each weight by W(n) = W(n) - error*(learning rate)*x(n)
 
     '''
+    if regularisation == None:
+        regularisation = lambda x:0
+
     for n, x in enumerate(X):
         y_p = sigmoid(sum(W[i]*float(x[i]) for i in range(len(W))))
         eps = 1e-8
@@ -49,7 +53,7 @@ def epoch(X,Y,W,lr):
         err = y_p - float(Y[n])
         
         for i in range(len(W)):
-            W[i] -= lr * err * float(x[i])
+            W[i] -= lr * err * float(x[i]) + regularisation(W[i])
 
 def loss(X, Y, W):
     '''
@@ -64,7 +68,7 @@ def loss(X, Y, W):
         total += -(Y[n]*math.log(y_p,math.e)+(1-Y[n])*math.log(1-y_p,math.e))
     return total / len(X)
 
-class LogisticRegression():
+class BLogisticRegression():
     def __init__(self):
         self.normalizer = Normalizer()
 
@@ -94,7 +98,7 @@ class LogisticRegression():
         # Y = [float(y) for y in Y]
         
 
-        return self.normalizer.__normalizer(X,Y)
+        return self.normalizer.normalizer(X,Y)
     def __transform(self,X):
         # '''
         # Transform the X values using the saved transformer data...
@@ -106,12 +110,11 @@ class LogisticRegression():
         # for n,xi in enumerate(X):
         #     new_X.append((float(xi)-X_d[n][0])/(X_d[n][1]+1e-8))
         
-        return self.normalizer.__transform(X)
+        return self.normalizer.transform(X)
     
-    def __detransform(self,Y:list):
-        return self.normalizer.__detransform(Y)
+  
     def fit(self,X:list,Y:list,learning_rate:float=0.0001,max_epoch_lim:int=1000,
-              threshold_stop:int=0.001):
+              threshold_stop:int=0.001,regularisation=None):
         '''
         1.Noramlize data
         2.Control epoch
@@ -137,7 +140,7 @@ class LogisticRegression():
         #Train with multiple epoch handle the threshold and epoch limit
         loss_last = 0
         for x in range(max_epoch_lim):
-            b2 = epoch(X,Y,W,learning_rate)
+            b2 = epoch(X,Y,W,learning_rate,regularisation=regularisation)
             l = loss(X,Y,W)
             delt_l = loss_last-float(l)
             loss_last = l
@@ -186,5 +189,20 @@ class LogisticRegression():
             yield self.__predict(x)
 
     
+X=[]
+Y=[]
+import csv
+r = csv.reader(open('diabetes_dataset.csv','r'))
 
-        
+first = True
+for j in r:
+    if first:
+        first = False
+        continue
+    temp = []
+    for i in j[0:-1]:
+        temp.append(float(i))
+    
+    X.append(temp)
+    Y.append(int(j[-1]))
+

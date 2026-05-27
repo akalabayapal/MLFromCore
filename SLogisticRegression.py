@@ -13,7 +13,7 @@ use the weightlist of the correct class and update weights
 
 import math
 import random 
-from normalizer import Normalizer
+from util.normalizer import Normalizer
 
 def softmax(Zlist:dict):
     '''
@@ -37,7 +37,7 @@ def softmax(Zlist:dict):
 
 
 
-def epoch(X,Y,Wlist,lr):
+def epoch(X,Y,Wlist,lr,regularistion=None):
     '''
     1.Traverse via each X lists
     2.Use the W to get Y predicted
@@ -45,6 +45,10 @@ def epoch(X,Y,Wlist,lr):
     4.Update each weight by W(n) = W(n) - error*(learning rate)*x(n)
 
     '''
+    if regularistion == None:
+        regularistion = lambda x:0
+
+
     for n, x in enumerate(X):
         zList = {}
 
@@ -76,7 +80,7 @@ def epoch(X,Y,Wlist,lr):
 
             #update the weigts
             for i in range(len(W)):
-                 W[i] -= lr * err[e] * float(x[i])
+                 W[i] -= lr * err[e] * float(x[i]) + regularistion(W[i])
     
     
 
@@ -131,7 +135,7 @@ class SLogisticRegression():
         
 
 
-        return self.normalizer.__normalizer(X,Y)
+        return self.normalizer.normalizer(X,Y)
     def __transform(self,X):
         # '''
         # Transform the X values using the saved transformer data...
@@ -143,10 +147,10 @@ class SLogisticRegression():
         # for n,xi in enumerate(X):
         #     new_X.append((float(xi)-X_d[n][0])/(X_d[n][1]+1e-8))
         
-        return self.normalizer.__transform(X)
+        return self.normalizer.transform(X)
 
     def fit(self,X:list,Y:list,learning_rate:int=0.0001,max_epoch_lim:int=1000,
-              threshold_stop:int=0.001):
+              threshold_stop:int=0.001,regularisation=None):
         
         class_Y = self.__getuniqueclass(Y) #get unique classes in the Y
 
@@ -163,7 +167,7 @@ class SLogisticRegression():
         for i in range(len(X)):
             X[i].append(1)
 
-        epoch(X,Y,WList,learning_rate)
+        epoch(X,Y,WList,learning_rate,regularistion=regularisation)
 
         self.WList = WList
 
@@ -200,5 +204,6 @@ class SLogisticRegression():
     def predict_stream(self, X):
         for x in X:
             yield self.__predict(x)
+
 
 

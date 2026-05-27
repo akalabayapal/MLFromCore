@@ -24,7 +24,7 @@ The goal is to deeply understand how machine learning algorithms work internally
 * [x] Logistic Regression
 * [X] Naive Bayes
     * [X] Word Vectorizers(BOW and TF-IDF)
-* [ ] Decision Tree
+* [X] Decision Tree
 * [ ] Random Forest
 * [ ] Support Vector Machine (SVM)
 * [ ] Neural Networks

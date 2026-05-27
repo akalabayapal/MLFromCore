@@ -2,7 +2,7 @@ class Normalizer():
     def __init__(self):
         pass
 
-    def __normalizer(self,X:list,Y:list):
+    def normalizer(self,X:list,Y:list):
         '''
         Methodology:
         1.Calculate the standard deviation of a feature/coloumn
@@ -34,7 +34,7 @@ class Normalizer():
         
 
         return X,Y
-    def __transform(self,X):
+    def transform(self,X):
         '''
         Transform the X values using the saved transformer data...
         '''
@@ -47,7 +47,7 @@ class Normalizer():
         
         return new_X
     
-    def __detransform(self,Y):
+    def detransform(self,Y):
         '''
         Transform the X values using the saved transformer data...
         '''

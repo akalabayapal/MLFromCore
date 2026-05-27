@@ -17,7 +17,7 @@ Algorithm aim:
 6.Test out LARM centeroid representation method for knn approximation
 '''
 import math
-from normalizer import Normalizer
+from util.normalizer import Normalizer
 def dot_product(x,y):
     s=0
         
@@ -224,7 +224,7 @@ class Knn():
         
 
         # return X,Y
-        return self.normalizer.__normalizer(X,Y)
+        return self.normalizer.normalizer(X,Y)
     def __transform(self,X):
         # '''
         # Transform the X values using the saved transformer data...
@@ -236,7 +236,7 @@ class Knn():
         # for n,xi in enumerate(X):
         #     new_X.append((float(xi)-X_d[n][0])/(X_d[n][1]+1e-8))
         
-        return self.normalizer.__transform(X)
+        return self.normalizer.transform(X)
     
     def __detransform(self,Y):
         # '''
@@ -247,7 +247,7 @@ class Knn():
 
         # new_Y  = Y*(Y_std+1e-8) + Y_mean
         
-        return self.normalizer.__detransform(Y)
+        return self.normalizer.detransform(Y)
     
 
     def getNearestK(self,X,distanceMetric=None):
