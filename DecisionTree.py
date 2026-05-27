@@ -307,3 +307,22 @@ class Kernels:
         return maxiclass
 
 
+    @staticmethod
+    def normalizedvoting(Yu:list,output:list):
+        length = len(output)
+        counter = [0]*len(Yu)
+        for n,k in enumerate(Yu):
+            counter[n] = output.count(k)/length
+        
+        return dict(zip(Yu, counter))
+    
+    @staticmethod
+    def regression(Yu:list,output:list):
+        length = len(output)
+        if length == 0:
+            return -1
+        counter = [0]*len(Yu)
+        for n,k in enumerate(Yu):
+            counter[n] = (output.count(k)/length)*k
+        
+        return sum(counter)
